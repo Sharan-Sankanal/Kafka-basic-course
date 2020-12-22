@@ -1,0 +1,38 @@
+kafka-console-producer --broker-list localhost:9092 --topic first-topic ack=all
+
+
+
+
+
+//Start the zookeeper
+bin\windows\zookeeper-server-start.bat config\zookeeper.properties  -- port:2181
+//Start the kafka
+bin\windows\kafka-server-start.bat config\server.properties  --port: 9092
+//Creat a topic
+bin\windows\kafka-topics.bat --zookeeper 127.0.01:2181 --topic FIRST_TOPIC --create --partitions 3 --replication-factor 1
+
+//validate the kafka topic created
+kafka-topics.bat --zookeeper 127.0.0.1:2181 --list
+
+//details
+kafka-topics.bat --zookeeper 127.0.0.1:2181 --topic FIRST_TOPIC --describe
+
+//Produce somethign in console
+bin\windows\kafka-console-producer.bat --broker-list 127.0.0.1:9092 --topic FIRST_TOPIC
+
+bin\windows\kafka-console-consumer.bat --bootstrap-server 127.0.0.1:9092 --topic FIRST_TOPIC
+
+//Added group if you start 2-3 kafka consumer with group it will automatically do the load balance
+bin\windows\kafka-console-consumer.bat --bootstrap-server 127.0.0.1:9092 --topic FIRST_TOPIC --group my-frist-app
+
+bin\windows\kafka-console-consumer.bat --bootstrap-server 127.0.0.1:9092 --topic FIRST_TOPIC --group my-first-app --from-beginning
+
+bin\windows\kafka-consumer-groups.bat --bootstrap-server localhost:9092 --list
+
+bin\windows\kafka-consumer-groups.bat --bootstrap-server localhost:9092 --describe
+
+//to find the lag
+bin\windows\kafka-consumer-groups.bat --bootstrap-server localhost:9092 --describe --group my-first-app
+
+
+

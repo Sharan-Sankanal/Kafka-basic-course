@@ -24,10 +24,6 @@ import java.util.concurrent.TimeUnit;
 
 public class TwitterProducer {
     Logger logger = LoggerFactory.getLogger(TwitterProducer.class.getName());
-    private String CONSUMER_KEY= "JZ1Qjdfq7lNjBEPnTebOooHqO";
-    private String CONSUMER_SECRET = "LufZnV8CwuXDwGpOMTlrONA9qulL5d9t0kOmi8iPaBtfps31Uq";
-    private String TOKEN = "1342922058074890240-exCTq5JeK05m0qGiRUPmYrwy6IUUCL";
-    private String SECRET = "aatdhBBkhmzfiaA05oeYL62RYI0t1UIHD9xHwo65pE5rM";
     List<String> terms = Lists.newArrayList("Kafka");
 
     public TwitterProducer() {}
@@ -69,15 +65,12 @@ public class TwitterProducer {
             }
             if(msg !=null){
                 logger.info("Received the Tweet: {}", msg);
-                producer.send(new ProducerRecord<>("TWITTER_TWEET", null, msg), new Callback() {
-                    @Override
-                    public void onCompletion(RecordMetadata recordMetadata, Exception e) {
-                        if(e != null){
-                            logger.info("Topic: {0}", recordMetadata.topic());
-                            logger.info("Offset: {0}", recordMetadata.offset());
-                            logger.info("Partition: {0}", recordMetadata.partition());
-                            logger.error("Error: {0}", e);
-                        }
+                producer.send(new ProducerRecord<>("TWITTER_TWEET", null, msg), (recordMetadata, e) -> {
+                    if(e != null){
+                        logger.info("Topic: "+ recordMetadata.topic());
+                        logger.info("Offset: "+ recordMetadata.offset());
+                        logger.info("Partition: "+ recordMetadata.partition());
+                        logger.error("Error: "+ e);
                     }
                 });
             }
@@ -104,19 +97,22 @@ public class TwitterProducer {
         properties.setProperty(ProducerConfig.LINGER_MS_CONFIG, "20");
 
         //Create the producer
-        KafkaProducer<String,String> producer = new KafkaProducer<String, String>(properties);
-        return producer;
+        return new KafkaProducer<>(properties);
     }
 
     public Client createTwitterClient(BlockingQueue<String> msgQueue){
 
-        /** Declare the host you want to connect to, the endpoint, and authentication (basic auth or oauth) */
+        //Declare the host you want to connect to, the endpoint, and authentication (basic auth or oauth)
         Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
         StatusesFilterEndpoint hosebirdEndpoint = new StatusesFilterEndpoint();
         hosebirdEndpoint.trackTerms(terms);
 
         // These secrets should be read from a config file
-        Authentication hosebirdAuth = new OAuth1(CONSUMER_KEY, CONSUMER_SECRET,TOKEN,SECRET);
+        String CONSUMER_KEY = "JZ1Qjdfq7lNjBEPnTebOooHqO";
+        String TOKEN = "1342922058074890240-exCTq5JeK05m0qGiRUPmYrwy6IUUCL";
+        String CONSUMER_SECRET = "LufZnV8CwuXDwGpOMTlrONA9qulL5d9t0kOmi8iPaBtfps31Uq";
+        String SECRET = "aatdhBBkhmzfiaA05oeYL62RYI0t1UIHD9xHwo65pE5rM";
+        Authentication hosebirdAuth = new OAuth1(CONSUMER_KEY, CONSUMER_SECRET, TOKEN, SECRET);
 
 
         ClientBuilder builder = new ClientBuilder()
@@ -125,9 +121,7 @@ public class TwitterProducer {
                 .authentication(hosebirdAuth)
                 .endpoint(hosebirdEndpoint)
                 .processor(new StringDelimitedProcessor(msgQueue));
-
-        Client hosebirdClient = builder.build();
-        return hosebirdClient;
+        return builder.build();
     }
 }
 

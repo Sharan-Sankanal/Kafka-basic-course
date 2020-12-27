@@ -19,7 +19,7 @@ public class ProducerDemo {
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,StringSerializer.class.getName());
 
         //Create the producer
-        KafkaProducer<String,String> producer = new KafkaProducer<String, String>(properties);
+        KafkaProducer<String,String> producer = new KafkaProducer<>(properties);
 
         //Create a producer read
         ProducerRecord<String,String> record = new ProducerRecord<>("FIRST_TOPIC", "Hello world!!!");

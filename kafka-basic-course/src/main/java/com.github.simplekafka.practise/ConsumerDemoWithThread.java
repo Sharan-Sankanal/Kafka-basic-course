@@ -78,7 +78,7 @@ class ConsumerRunnable implements Runnable{
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         this.latch= latch;
-        consumer = new KafkaConsumer<String, String>(properties);
+        consumer = new KafkaConsumer<>(properties);
         //Subscribe consumer to our topic(s)
         consumer.subscribe(Arrays.asList(topic));
         }

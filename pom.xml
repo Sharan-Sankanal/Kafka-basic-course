@@ -6,6 +6,7 @@
 
     <groupId>com.github.simplekafka</groupId>
     <artifactId>kafka-basic-project</artifactId>
+    <packaging>pom</packaging>
     <version>1.0</version>
 
     <properties>
